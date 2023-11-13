@@ -8,6 +8,12 @@ from tkinter import ttk, filedialog
 from os.path import exists
 from os import listdir
 import customtkinter as ctk
+#the cusatomtkinter lib makes it possible to create a much 'prettier' design while still keeping all the same functionality
+#this is also the most practical (low effort ish) way of redesigning as we dont need any big changes to the existing code to complete the port
+
+
+#so far i have not completed the transission to running this file will spit out multible errors
+
 
 # safeguard for the treeview automated string conversion problem
 PREFIX = '<@!PREFIX>'
