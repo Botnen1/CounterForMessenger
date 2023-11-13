@@ -2,10 +2,12 @@ import json
 import tkinter as tk
 import glob
 import importlib
+from time import time
 from datetime import timedelta, datetime
 from tkinter import ttk, filedialog
 from os.path import exists
 from os import listdir
+import customtkinter as ctk
 
 # safeguard for the treeview automated string conversion problem
 PREFIX = '<@!PREFIX>'
@@ -27,61 +29,62 @@ def existing_languages():
 class ConfigurationPage(tk.Frame):
     # build configuration panel
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
+        super().__init__(parent)
         self.controller = controller
         self.module = self.controller.lang_mdl
 
         # set up frame title
-        tk.Label(
+        ctk.CTkLabel(
             self, text=self.module.TITLE_INITIAL_CONFIG, font=('Ariel', 24)
         ).pack(side='top', pady=10)
 
         # ask for directory and show selected path
-        tk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_GIVE_INBOX}:'
         ).pack(side='top', pady=5)
-        self.directory_label = tk.Label(self, text=self.module.TITLE_NO_SELECTION)
+        self.directory_label = ctk.CTkLabel(self, text=self.module.TITLE_NO_SELECTION)
         self.directory_label.pack(side='top', pady=5)
 
         # show 'Open File Explorer' button
-        ttk.Button(
-            self, text=f'{self.module.TITLE_OPEN_FE}...', padding=5, command=self.open_file_explorer
+        ctk.CTkButton(
+            self, text=f'{self.module.TITLE_OPEN_FE}...', command=self.open_file_explorer
         ).pack(side='top', pady=5)
 
         # ask for Facebook name
-        tk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_GIVE_USERNAME}:',
         ).pack(side='top', pady=15)
-        self.username_label = ttk.Entry(self, width=25)
-        self.username_label.pack(side='top', pady=5)
+        self.username_entry = ctk.CTkEntry(self, width=25)
+        self.username_entry.pack(side='top', pady=5)
 
         # set up language listbox
-        self.language_label = tk.StringVar(self, value='English')
-        ttk.OptionMenu(
-            self, self.language_label, 'English', *existing_languages()
+        self.language_variable = ctk.StringVar(self, value='English')
+        ctk.CTkOptionMenu(
+            self, self.language_variable, 'English', *existing_languages()
         ).pack(side='top', pady=10)
 
         # load save button
-        ttk.Button(
-            self, text=self.module.TITLE_SAVE, padding=7, command=self.setup
+        ctk.CTkButton(
+            self, text=self.module.TITLE_SAVE, command=self.setup
         ).pack(side='top', pady=40)
+
 
     # invoked by pressing the save button
     def setup(self):
         # communicate provided data with the master window
         self.controller.update_data(
-            self.username_label.get(),
-            self.directory_label.cget('text'),
-            self.language_label.get()
+            self.usernctk.CTkLabel.get(),
+            self.directctk.CTkLabel.cget('text'),
+            self.languctk.CTkLabel.get()
         )
         # go to main page
         self.controller.show_frame(MainPage.__name__)
 
     # invoked by pressing the 'Open file explorer...' button
     def open_file_explorer(self):
-        # open FE, extract given path and update label text message
-        path = f'{tk.filedialog.askdirectory()}/'
-        self.directory_label.config(
+        # open FE, extract given path and updctk.CTkLabel text message
+        path = f'{ctk.filedialog.askdirectory()}/'
+        self.directctk.CTkLabel.config(
             text=(self.module.TITLE_NO_SELECTION if path == '' or path.isspace() or path == '/' else path)
         )
 
@@ -95,16 +98,16 @@ class MainPage(tk.Frame):
         self.module = self.controller.lang_mdl
 
         # frame style setup
-        self.style = ttk.Style()
+        self.style = ctk.Style()
         self.style.configure('Nav.TFrame', background='#131313')
         self.style.configure('Main.TFrame', background='#232323')
         self.style.configure('Custom.Treeview', background='#232323', foreground='#ffffff')
-        self.nav = ttk.Frame(self, padding=20, style='Nav.TFrame')
-        self.main = ttk.Frame(self, style='Main.TFrame')
+        self.nav = tk.Frame(self, padding=20, style='Nav.TFrame')
+        self.main = tk.Frame(self, style='Main.TFrame')
 
         # build treeview for message data projection
-        scrollbar = tk.Scrollbar(self.main)
-        self.treeview = ttk.Treeview(self.main, height=20, yscrollcommand=scrollbar.set, style='Custom.Treeview')
+        scrollbar = ctk.Scrollbar(self.main)
+        self.treeview = ctk.Treeview(self.main, height=20, yscrollcommand=scrollbar.set, style='Custom.Treeview')
         columns = {
             'name': self.module.TITLE_NAME,
             'pep': self.module.TITLE_PARTICIPANTS,
@@ -121,44 +124,44 @@ class MainPage(tk.Frame):
         self.treeview.bind('<Double-1>', lambda event: self.show_statistics())
 
         # show frame title
-        ttk.Label(
+        ctk.CTkLabel(
             self.main, text=f'{self.module.TITLE_NUMBER_OF_MSGS}: ', foreground='#ffffff', background='#232323',
             font=('Arial', 15)
         ).pack(side='top', pady=10)
 
         # show home button
-        ttk.Button(
+        ctk.Button(
             self.nav, image=self.controller.ICON_HOME, text=self.module.TITLE_HOME, compound='left', padding=5
         ).pack(side='top', pady=10)
 
         # show upload button
-        ttk.Button(
+        ctk.Button(
             self.nav, image=self.controller.ICON_STATUS_VISIBLE, text=self.module.TITLE_UPLOAD_MESSAGES,
             compound='left', padding=5, command=self.upload_data
         ).pack(side='top', pady=10)
 
         # show search button
-        self.search_entry = ttk.Entry(self.nav, width=15)
+        self.search_entry = ctk.Entry(self.nav, width=15)
         self.search_entry.pack(side='top', pady=10)
-        ttk.Button(
+        ctk.Button(
             self.nav, image=self.controller.ICON_SEARCH, text=self.module.TITLE_SEARCH, compound='left',
             command=self.search
         ).pack(side='top', pady=10)
 
         # show exit button
-        ttk.Button(
+        ctk.Button(
             self.nav, image=self.controller.ICON_EXIT, text=self.module.TITLE_EXIT, compound='left', padding=5,
             command=self.controller.destroy
         ).pack(side='bottom')
 
         # show settings button
-        ttk.Button(
+        ctk.Button(
             self.nav, image=self.controller.ICON_SETTINGS, text=self.module.TITLE_SETTINGS, compound='left',
             padding=5, command=lambda: SettingsPopup(self.controller)
         ).pack(side='bottom', pady=15)
 
         # show profile button
-        ttk.Button(
+        ctk.Button(
             self.nav, image=self.controller.ICON_PROFILE, text=self.module.TITLE_PROFILE, compound='left',
             padding=5, command=lambda: ProfilePopup(self.controller)
         ).pack(side='bottom')
@@ -238,13 +241,13 @@ class MainPage(tk.Frame):
             return
 
 
-class MasterWindow(tk.Tk):
+class MasterWindow(ctk.CTk):
     # NOTE: lang_mdl throws unresolved reference warnings here because its master
     # class doesn't recognise the TITLE_ constants.
     # it works perfectly well, thus the 'noinspection' suppression tags
     # if a better way to handle these warnings is found, remove them
     def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
+        ctk.CTk.__init__(self, *args, **kwargs)
 
         # load icons
         self.ICON_HOME = tk.PhotoImage(file='assets/home.png')
@@ -295,7 +298,7 @@ class MasterWindow(tk.Tk):
         width, height, frame = self.frames.get(page_name)
         set_resolution(self, width, height)
         # invoke the new frame
-        frame.tkraise()
+        frame.ctkraise()
 
     def get_username(self):
         # noinspection PyUnresolvedReferences
@@ -370,7 +373,7 @@ class MasterWindow(tk.Tk):
                     # save call durations, if any
                     call_duration += message.get('call_duration', 0)
                     # fetch conversation creation date
-                    start_date = message['timestamp_ms']
+                    start_date = message['timestamp_ms']  # BUG: doesn't work properly if there are 10 or more JSONs
                     if 'photos' in message:
                         total_photos += len(message['photos'])
                 # fetch chat name and type
@@ -400,12 +403,12 @@ class ProfilePopup(tk.Toplevel):
         self.grab_set()
 
         # show 'My data' header
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_MY_DATA}:', font=('Ariel', 24)
         ).pack(side='top', pady=20)
 
         # display given username
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_NAME}: {self.controller.get_username()}'
         ).pack(side='top', pady=10)
 
@@ -415,27 +418,27 @@ class ProfilePopup(tk.Toplevel):
         except FileNotFoundError:
             conversations = 0
             print('>ProfilePage/#CONVERSATIONS CALCULATION THROWS FileNotFoundError, NOTIFY OP IF UNEXPECTED')
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_NUMBER_OF_CHATS}: {conversations}'
         ).pack(side='top', pady=10)
 
         # display total number of sent messages
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_SENT_MESSAGES}: {self.controller.sent_messages}'
         ).pack(side='top', pady=10)
 
         # display complete message total
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_TOTAL_MESSAGES}: {self.controller.total_messages}'
         ).pack(side='top', pady=10)
 
         # display total number of characters
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_TOTAL_CHARS}: {self.controller.total_chars}'
         ).pack(side='top', pady=10)
 
         # load exit button
-        ttk.Button(
+        ctk.Button(
             self, text=self.module.TITLE_CLOSE_POPUP, padding=7, command=self.destroy
         ).pack(side='top', pady=40)
 
@@ -454,33 +457,33 @@ class SettingsPopup(tk.Toplevel):
         self.grab_set()
 
         # ask for directory and show selected path
-        tk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_GIVE_INBOX}:'
         ).pack(side='top', pady=16)
-        self.directory_label = tk.Label(self, text=self.controller.get_directory())
+        self.directory_label = ctk.CTkLabel(self, text=self.controller.get_directory())
         self.directory_label.pack(side='top', pady=15)
 
         # show 'Open File Explorer' button
-        ttk.Button(
+        ctk.Button(
             self, text=f'{self.module.TITLE_OPEN_FE}...', padding=5, command=self.open_file_explorer
         ).pack(side='top', pady=5)
 
         # ask for Facebook name
-        tk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_GIVE_USERNAME}:'
         ).pack(side='top', pady=15)
-        self.username_label = ttk.Entry(self, width=25)
-        self.username_label.insert(0, self.controller.get_username())
-        self.username_label.pack(side='top', pady=5)
+        self.username_entry = ctk.CTkEntry(self, width=25)
+        self.username_entry.insert(0, self.controller.get_username())
+        self.username_entry.pack(side='top', pady=5)
 
         # set up language listbox
-        self.language_label = tk.StringVar(self, value=self.controller.get_language())
-        ttk.OptionMenu(
-            self, self.language_label, self.controller.get_language(), *existing_languages()
+        self.languctk.CTkLabel = ctk.StringVar(self, value=self.controller.get_language())
+        ctk.OptionMenu(
+            self, self.languctk.CTkLabel, self.controller.get_language(), *existing_languages()
         ).pack(side='top', pady=10)
 
         # load save button
-        ttk.Button(
+        ctk.Button(
             self, text=self.module.TITLE_SAVE, padding=7, command=self.setup
         ).pack(side='top', pady=40)
 
@@ -488,18 +491,18 @@ class SettingsPopup(tk.Toplevel):
     def setup(self):
         # communicate provided data with the master window
         self.controller.update_data(
-            self.username_label.get(),
-            self.directory_label.cget('text'),
-            self.language_label.get()
+            self.usernctk.CTkLabel.get(),
+            self.directctk.CTkLabel.cget('text'),
+            self.languctk.CTkLabel.get()
         )
         # exit popup
         self.destroy()
 
     # invoked by pressing the 'Open file explorer...' button
     def open_file_explorer(self):
-        # open FE, extract given path and update label text message
-        path = f'{tk.filedialog.askdirectory()}/'
-        self.directory_label.config(
+        # open FE, extract given path and updctk.CTkLabel text message
+        path = f'{ctk.filedialog.askdirectory()}/'
+        self.directctk.CTkLabel.config(
             text=(self.module.TITLE_NO_SELECTION if path == '' or path.isspace() or path == '/' else path)
         )
 
@@ -518,16 +521,16 @@ class LoadingPopup(tk.Toplevel):
         self.grab_set()
 
         # load progress bar
-        self.progress_bar = ttk.Progressbar(
+        self.progress_bar = ctk.Progressbar(
             self, orient='horizontal', maximum=chat_total, length=200, mode='determinate'
         )
         self.progress_bar.pack(side='top')
 
-        # load progress counter label
-        self.progress_label = ttk.Label(
+        # load progress counctk.CTkLabel
+        self.progrctk.CTkLabel = ctk.CTkLabel(
             self, text=f'{self.module.TITLE_LOADING_CHAT} 0/{chat_total}'
         )
-        self.progress_label.pack(side='top')
+        self.progrctk.CTkLabel.pack(side='top')
         # load all conversations to treeview for display
         self.directory = self.controller.get_directory()
         if self.directory != '' and not self.directory.isspace() and self.directory != self.module.TITLE_NO_SELECTION:
@@ -560,10 +563,10 @@ class LoadingPopup(tk.Toplevel):
                     self.progress_bar['value'] += 1
                     self.progress_bar.update()
 
-                    # update progress label
+                    # update progrctk.CTkLabel
                     progress_value = self.progress_bar['value']
-                    self.progress_label['text'] = f'{self.module.TITLE_LOADING_CHAT} {int(progress_value)}/{chat_total}'
-                    self.progress_label.update()
+                    self.progrctk.CTkLabel['text'] = f'{self.module.TITLE_LOADING_CHAT} {int(progress_value)}/{chat_total}'
+                    self.progrctk.CTkLabel.update()
                 except Exception as e:
                     print("Error in loading: " + str(e))
                     continue
@@ -586,40 +589,56 @@ class StatisticsPopup(tk.Toplevel):
         self.grab_set()
 
         title, people, room, all_msgs, all_chars, calltime, sent_msgs, start_date, total_photos = self.controller.extract_data(selection)
+        # resize the window to fit all data if the conversation is a group chat
+        if room == self.module.TITLE_GROUP_CHAT:
+            set_resolution(self, 800, 650)
         # display popup title
-        ttk.Label(self, text=f'{self.module.TITLE_MSG_STATS}:').pack(side='top', pady=16)
+        ctk.CTkLabel(self, text=f'{self.module.TITLE_MSG_STATS}:').pack(side='top', pady=16)
         # show conversation title and type
-        ttk.Label(self, text=f'{self.module.TITLE_NAME}: {title}').pack(side='top', pady=5)
-        ttk.Label(self, text=f'{self.module.TITLE_CONVERSATION_TYPE}: {room}').pack(side='top', pady=5)
+        ctk.CTkLabel(self, text=f'{self.module.TITLE_NAME}: {title}').pack(side='top', pady=5)
+        ctk.CTkLabel(self, text=f'{self.module.TITLE_CONVERSATION_TYPE}: {room}').pack(side='top', pady=5)
 
         # load participants list box
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_PEOPLE}({len(people)}) {self.module.TITLE_AND_MESSAGES}: '
         ).pack(side='top', pady=5)
         if room == self.module.TITLE_GROUP_CHAT:
             # larger amount of participants, load bigger box and include a scrollbar
             height = 15
-            ttk.Scrollbar(self).pack(side='right', fill='both')
+            ctk.Scrollbar(self).pack(side='right', fill='both')
         else:
             # fixed 2 people per private chat, load small box
             height = 2
-        listbox = tk.Listbox(self, width=30, height=height)
+        listbox = ctk.Listbox(self, width=30, height=height)
         listbox.pack(side='top', pady=5)
         # paste participants inside listbox
         for participant, messages in people.items():
             listbox.insert('end', f'{participant} - {messages}')
 
         # show total number of messages and total calltime in conversation
-        ttk.Label(self, text=f'{self.module.TITLE_NUMBER_OF_MSGS}: {all_msgs}').pack(side='top', pady=5)
-        ttk.Label(self, text=f'{self.module.TITLE_TOTAL_CHARS}: {all_chars}').pack(side='top', pady=5)
-        ttk.Label(self, text=f'{self.module.TITLE_NUMBER_OF_PHOTOS}: {total_photos}').pack(side='top', pady=5)
-        ttk.Label(
+        ctk.CTkLabel(self, text=f'{self.module.TITLE_NUMBER_OF_MSGS}: {all_msgs}').pack(side='top', pady=5)
+        ctk.CTkLabel(self, text=f'{self.module.TITLE_TOTAL_CHARS}: {all_chars}').pack(side='top', pady=5)
+        ctk.CTkLabel(self, text=f'{self.module.TITLE_NUMBER_OF_PHOTOS}: {total_photos}').pack(side='top', pady=5)
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_CALL_DURATION}: {timedelta(seconds=calltime)}'
         ).pack(side='top', pady=5)
         # show first message date
-        ttk.Label(
+        ctk.CTkLabel(
             self, text=f'{self.module.TITLE_START_DATE}: {datetime.fromtimestamp(start_date / 1000)}'
         ).pack(side='top', pady=5)
+        
+        # show average messages per time period
+        sec_since_start = int(time() - start_date/1000)
+        ctk.CTkLabel(
+            self, text=f'{self.module.TITLE_AVERAGE_MESSAGES}: '
+        ).pack(side='top', pady=5)
+            
+        listbox = tk.Listbox(self, width=30, height=4)
+        listbox.pack(side='top', pady=5)
+        listbox.insert('end', f'{self.module.TITLE_PER_DAY} - {all_msgs / (sec_since_start / 86400):.2f}')
+        listbox.insert('end', f'{self.module.TITLE_PER_WEEK} - {all_msgs / (sec_since_start / (7 * 86400)):.2f}')
+        listbox.insert('end', f'{self.module.TITLE_PER_MONTH} - {all_msgs / (sec_since_start / (30 * 86400)):.2f}')
+        listbox.insert('end', f'{self.module.TITLE_PER_YEAR} - {all_msgs / (sec_since_start / (365 * 86400)):.2f}')
 
 
 if __name__ == '__main__':
